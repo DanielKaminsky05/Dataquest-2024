@@ -21,20 +21,25 @@ def get_mae(max_leaf_nodes, train_x, val_x, train_y, val_y):
     return (MAE)
 
 
+print("Beginning the process")
 files = pd.ExcelFile("data_UPDATED.csv.xlsx")
-trainData = pd.read_excel(files, sheet_name='train', nrows = 1000)
-trainData = trainData.drop(['creditCardNum', 'business', 'firstName',  'lastName',  'transNum', 'street', 'category', 'transDate', 'job', 'merchLongitude', 'city', 'dateOfBirth', 'state'], axis = 1)
+train_data = pd.read_excel(files, "train")
+train_data.dropna()
+#train_data = train_data.drop(['creditCardNum', 'business', 'firstName',  'lastName',  'transNum', 'category', 'transDate', 'merchLongitude'], axis = 1)
+
+y = train_data['isFraud']
 gender = {"M": 0, "F": 1}
+train_data.gender = [gender[item] for item in train_data.gender]
 
-trainData.gender = [gender[item] for item in trainData.gender]
-y = trainData.isFraud
-x= trainData
+
+train_data_features = ["business", ]
+x= train_data[train_data_features]
 train_x,val_x,train_y,val_y = train_test_split(x,y,random_state=0)
+print("Describe: ", x.describe())
+print("Head: ", x.head())
 
+for max_leaf_nodes in [5, 50, 500, 5000, 50000]:
+    my_mae = get_mae(max_leaf_nodes, train_x, val_x, train_y, val_y)
+    print("Max leaf nodes: %d \t\t Mean absolute error: %f \t\t Avg Prediction %f" %(1000, my_mae[0], my_mae[1]))
 
-my_mae = get_mae(1000,train_x,val_x,train_y,val_y)
-print("Max leaf nodes: %d \t\t Mean absolute error: %f \t\t Avg Prediction %f" %(1000, my_mae[0], my_mae[1]))
 print("Done")
-
-
-
